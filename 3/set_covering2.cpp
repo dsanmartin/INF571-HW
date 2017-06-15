@@ -1,18 +1,17 @@
 /*
 
-  Set covering in Gecode.
+  Set covering problem in Gecode.
 
-  Placing of firestations, from Winston "Operations Research", page 486.
+  Example 9.1-2, page 354ff, from Taha "Operations Research - An Introduction"
+  Minimize the number of security telephones in street corners on a campus.
 
-  The objective is to place minimum number of fire stations so that all
-  cities are within a minimum distance from a fire station, i.e. that
-  the fire stations "cover" all the cities.
+  AMPL model: http://taha.ineg.uark.edu/setcover.txt
 
-
-  Compare with the following models:
-  * MiniZinc: http://www.hakank.org/minizinc/set_covering.mzn
-  * Comet: http://www.hakank.org/comet/set_covering.co
-
+  Compare with the following models: 
+  * MiniZinc: http://www.hakank.org/minizinc/set_covering2.mzn
+  * Comet: http://www.hakank.org/comet/set_covering2.co
+  * ECLiPSe: http://www.hakank.org/eclipse/set_covering2.ecl
+  * SICStus Prolog: http://www.hakank.org/sicstus/set_covering2.pl
 
   This Gecode model was created by Hakan Kjellerstrand (hakank@gmail.com)
   Also, see my Gecode page: http://www.hakank.org/gecode/ .
@@ -31,18 +30,13 @@ using std::endl;
 class SetCovering : public MinimizeScript {
 protected:
 
-  // minimum distance required 
-  // from opt.size(), defaults to 15
-  int min_distance;
+  
+  static const int n = 8;
+  static const int num_corners = 11;
 
-  // number of cities
-  static const int num_cities = 6;
-
-  // cities: where to place the fire stations
+  // cities: which columns to pick
   IntVarArray x;   
-  // number of of fire stations to place (to be minimized)
   IntVar z;
-
 
 public:
 
@@ -54,41 +48,57 @@ public:
 
   SetCovering(const SizeOptions& opt) 
   : MinimizeScript(opt),
-    min_distance(opt.size()),
-    x(*this, num_cities, 0, 1),
-    z(*this, 0, num_cities)
+    x(*this, n, 0, 1),
+    z(*this, 0, n)
   {
 
-    // distance between the cities
-    int distance[] =
+    // corners of each street (1-based)
+    int _corners[] =
       {
-        0,10,20,30,30,20,
-       10, 0,25,35,20,10,
-       20,25, 0,15,30,20,
-       30,35,15, 0,15,25,
-       30,20,30,15, 0,14,
-       20,10,20,25,14, 0
+        1,2,
+        2,3,
+        4,5,
+        7,8,
+        6,7,
+        2,6,
+        1,6,
+        4,7,
+        2,4,
+        5,8,
+        3,5
       };
+    IntSet corners[num_corners];
+    for(int i = 0; i < num_corners; i++) {
+      int c1 = _corners[i*2+0]-1; // 0-based
+      int c2 = _corners[i*2+1]-1;
+      IntArgs tmp;
+      tmp << c1;
+      tmp << c2;
+      corners[i] = IntSet(tmp);
+    }
 
-    // z = sum of placed fire stations
-    linear(*this, x, IRT_EQ, z, opt.ipl());
-
-    // ensure that all cities are covered by at least one fire station
-    for(int i = 0; i < num_cities; i++) {
-
-      IntArgs in_distance(num_cities);  // the cities within the distance
-      for(int j = 0; j < num_cities; j++) {
-        if (distance[i*num_cities+j] <= min_distance) {
-          in_distance[j] = 1;
-        } else {
-          in_distance[j] = 0;
+    // check that all the streets are covered
+    for(int i = 0; i < num_corners; i++) {
+      IntVarArgs tmp;
+      for(int j = 0; j < n; j++) {
+        if (corners[i].in(j)) {
+          tmp << expr(*this, x[j]);
         }
       }
+      rel(*this, sum(tmp) >= 1);
+    }
 
-      linear(*this, in_distance, x, IRT_GQ, 1, opt.ipl());
+    rel(*this, z == sum(x));
+
+    // show all optimal solutions if
+    //    -search dfs
+    // or
+    //    -search lds
+    if (opt.search() == SEARCH_DFS) {
+      rel(*this, z == 4);
     }
     
-    branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MIN()); 
+    branch(*this, x, INT_VAR_NONE(), INT_VAL_MIN()); 
 
   }
 
@@ -106,11 +116,9 @@ public:
     z.update(*this, share, s.z);
   }
 
-  // Return cost
   virtual IntVar cost(void) const {
     return z;
   }
-
 
   // Copy during cloning
   virtual Space*
@@ -131,9 +139,6 @@ main(int argc, char* argv[]) {
 
   opt.parse(argc,argv);
 
-  if (!opt.size()) {
-    opt.size(15); // default minimum distance
-  }
   switch (opt.search()) {
     case SetCovering::SEARCH_DFS:
       MinimizeScript::run<SetCovering,DFS,SizeOptions>(opt); break;
