@@ -52,6 +52,14 @@ public:
     SEARCH_BAB,     // Use branch and bound to optimize
   };
 
+  // Branching 
+  enum {
+    SIZE_MAX_SPLIT_MAX,
+    SIZE_MAX_SPLIT_MIN,
+    SIZE_MIN_SPLIT_MAX,
+    SIZE_MIN_SPLIT_MIN,
+  };
+
   SetCovering(const SizeOptions& opt) 
   : MinimizeScript(opt),
     min_distance(opt.size()),
@@ -74,6 +82,7 @@ public:
     linear(*this, x, IRT_EQ, z, opt.ipl());
 
     // ensure that all cities are covered by at least one fire station
+  
     for(int i = 0; i < num_cities; i++) {
 
       IntArgs in_distance(num_cities);  // the cities within the distance
@@ -86,7 +95,40 @@ public:
       }
 
       linear(*this, in_distance, x, IRT_GQ, 1, opt.ipl());
+
     }
+
+    
+
+    /* Using Alias 
+    //std::cout << "z: " << x << std::endl;
+    atleast(*this, x, {1, 1, 0, 0, 0, 0}, 1);
+    atleast(*this, x, {1, 1, 0, 0, 0, 1}, 1);
+    atleast(*this, x, {0, 0, 1, 1, 0, 0}, 1);
+    atleast(*this, x, {0, 0, 1, 1, 1, 0}, 1);
+    atleast(*this, x, {0, 0, 0, 1, 1, 1}, 1);
+    atleast(*this, x, {1, 0, 0, 0, 1, 1}, 1);
+    */
+
+    /*
+    switch(opt.branching()) {
+    case SIZE_MAX_SPLIT_MAX:
+        branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MAX()); 
+      break;
+    case SIZE_MAX_SPLIT_MIN:
+        branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MIN()); 
+      break;
+    case SIZE_MIN_SPLIT_MAX:
+        branch(*this, x, INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MAX()); 
+      break;
+    case SIZE_MIN_SPLIT_MIN:
+        branch(*this, x, INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MIN()); 
+      break;
+    default:
+        branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MAX());
+      break;
+    } 
+    */
     
     branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MIN()); 
 
@@ -129,6 +171,13 @@ main(int argc, char* argv[]) {
   opt.search(SetCovering::SEARCH_DFS, "dfs");
   opt.search(SetCovering::SEARCH_BAB, "bab");
 
+  /*
+  opt.branching(SetCovering::SIZE_MAX_SPLIT_MAX);
+  opt.branching(SetCovering::SIZE_MAX_SPLIT_MAX, "maxmax", "SIZE MAX SPLIT MAX");
+  opt.branching(SetCovering::SIZE_MAX_SPLIT_MIN, "maxmin", "SIZE MAX SPLIT MIN");
+  opt.branching(SetCovering::SIZE_MIN_SPLIT_MAX, "minmax", "SIZE MIN SPLIT MAX");
+  opt.branching(SetCovering::SIZE_MIN_SPLIT_MIN, "minmin", "SIZE MIN SPLIT MIN");
+  */
   opt.parse(argc,argv);
 
   if (!opt.size()) {
