@@ -1,6 +1,5 @@
 # INF-571 Programación con Restricciones
-## Tareas 
-Daniel San Martín
+## Tareas - Daniel San Martín
 Profesor: Carlos Castro
 
 * Tarea 1:
