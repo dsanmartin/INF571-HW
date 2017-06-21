@@ -98,7 +98,6 @@ public:
 
     }
 
-    
 
     /* Using Alias 
     //std::cout << "z: " << x << std::endl;
