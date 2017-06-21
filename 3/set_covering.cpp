@@ -110,7 +110,6 @@ public:
     atleast(*this, x, {1, 0, 0, 0, 1, 1}, 1);
     */
 
-    /*
     switch(opt.branching()) {
     case SIZE_MAX_SPLIT_MAX:
         branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MAX()); 
@@ -128,7 +127,6 @@ public:
         branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MAX());
       break;
     } 
-    */
     
     branch(*this, x, INT_VAR_SIZE_MAX(), INT_VAL_SPLIT_MIN()); 
 
@@ -171,13 +169,14 @@ main(int argc, char* argv[]) {
   opt.search(SetCovering::SEARCH_DFS, "dfs");
   opt.search(SetCovering::SEARCH_BAB, "bab");
 
-  /*
+  
   opt.branching(SetCovering::SIZE_MAX_SPLIT_MAX);
   opt.branching(SetCovering::SIZE_MAX_SPLIT_MAX, "maxmax", "SIZE MAX SPLIT MAX");
   opt.branching(SetCovering::SIZE_MAX_SPLIT_MIN, "maxmin", "SIZE MAX SPLIT MIN");
   opt.branching(SetCovering::SIZE_MIN_SPLIT_MAX, "minmax", "SIZE MIN SPLIT MAX");
   opt.branching(SetCovering::SIZE_MIN_SPLIT_MIN, "minmin", "SIZE MIN SPLIT MIN");
-  */
+  
+  
   opt.parse(argc,argv);
 
   if (!opt.size()) {
