@@ -237,6 +237,18 @@ protected:
   /// Total cost of travel
   IntVar      total;
 public:
+  // Branching 
+  enum {
+    REGRET_MAX_MAX_VAL_MAX,
+    REGRET_MAX_MIN_VAL_MAX,
+    REGRET_MIN_MAX_VAL_MAX,
+    REGRET_MIN_MIN_VAL_MAX,
+    REGRET_MAX_MAX_VAL_MIN,
+    REGRET_MAX_MIN_VAL_MIN,
+    REGRET_MIN_MAX_VAL_MIN,
+    REGRET_MIN_MIN_VAL_MIN,
+  };
+
   /// Actual model
   TSP(const SizeOptions& opt)
     : IntMinimizeScript(opt),
