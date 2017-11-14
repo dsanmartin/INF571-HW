@@ -4,6 +4,7 @@ Profesor: Carlos Castro
 
 * Tarea 1:
   1. SEND+MORE = MONEY
-  2. n-reinas
+  2. n-queens
 * Tarea 2: Open-Shop
-* Tarea 3: Set Covering problem
+* Tarea 3: Set Covering problem (SCP)
+* Tarea 4: Travelling salesman problem (TSP)
